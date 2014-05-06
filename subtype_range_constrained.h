@@ -2,6 +2,8 @@
 #define SUBTYPE_RANGE_CONSTRAINED_H
 
 #include <stdexcept>
+#include <sstream>
+#include <string>
 
 namespace ConstrainedTypes {
 
@@ -13,8 +15,11 @@ private:
   T _val;
   
   inline static const T& range_check(const T& val) {
-    if ((val < First) || (val > Last))
-      throw std::out_of_range ("Value is out of type's range.");
+    if ((val < First) || (val > Last)) {
+      std::ostringstream strm;
+      strm << "The value " << val << " is outside the range " << "[" << First << ", " << Last << "]";
+      throw std::out_of_range (strm.str());
+    }
     return val;
   }
 
@@ -31,40 +36,61 @@ public:
     return First;
   }
 
-  operator T () {
+  inline operator T () {
     return _val;
   }
  
   // Allows compatibility between different range constrained instantiations.
   template<T F, T L>
-  operator RangeConstrained<T, F, L> () {
+  inline operator RangeConstrained<T, F, L> () {
     return RangeConstrained<T, F, L>(_val);
   }
 
-  RangeConstrained& operator += (const T& val) {
+  inline RangeConstrained& operator += (const T& val) {
     _val += val;
     return *this;
   }
 
-  RangeConstrained& operator -= (const T& val) {
+  inline RangeConstrained& operator -= (const T& val) {
     _val -= val;
     return *this;
   }
 
-  RangeConstrained& operator *= (const T& val) {
+  inline RangeConstrained& operator *= (const T& val) {
     _val *= val;
     return *this;
    }
 
-   RangeConstrained& operator /= (const T& val) {
+   inline RangeConstrained& operator /= (const T& val) {
     _val /= val;
     return *this;
    }
 
-  RangeConstrained& operator %= (const T& val) {
+  inline RangeConstrained& operator %= (const T& val) {
     _val %= val;
     return *this;
   }
+
+  inline RangeConstrained& operator ++() {
+    _val++;
+    return *this;
+  }
+
+  inline RangeConstrained& operator --() {
+    _val--;
+    return *this;
+  }
+
+  inline RangeConstrained& operator ++(int) {
+    _val++;
+    return *this;
+  }
+
+  inline RangeConstrained& operator --(int) {
+    _val--;
+    return *this;
+  }
+
 
 };
 

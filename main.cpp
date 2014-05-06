@@ -7,18 +7,6 @@ using namespace std;
 void f1(int i) {}
 void f2(ct::RangeConstrained<int, 0, 1000> i) {}
 
-
-
-/*
-template <int N>
-class C {
-private:
-  
-public:
-  C(const T& val) : _val(val) {}
-};
-*/
-
 int main(void) {
 
   ct::RangeConstrained<int, 0, 1000> x;
@@ -38,6 +26,8 @@ int main(void) {
   x = 5 + y;
   x = x + y;
   x = x % y;
+  x = x + c;
+  x = c + x;
 
   cout << x << " " << y << " " << z << endl;
   
@@ -66,6 +56,14 @@ int main(void) {
   z += x;
   x += c;
   c += x;
+
+  x++;
+  x--;
+
+  ++x;
+  --x;
+
+  x = -4;
 
   return 0;
 }
