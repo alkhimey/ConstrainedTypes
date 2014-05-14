@@ -2,7 +2,7 @@ ConstrainedTypes
 ================
 
 This library allows definition of range constrained subtypes of discreete types.
-Variables of these types are limited to hold types of a defined range.
+Variables of these types are limited to hold values of a defined range.
 
 Usage example:
 
