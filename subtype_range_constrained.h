@@ -27,7 +27,18 @@
  * THE SOFTWARE.
  *
  * @section DESCRIPTION
- * TODO:
+ * 
+ * This library allows definition of range constrained subtypes of discreete types.
+ * Variables of these types are limited to hold types of a defined range.
+ *
+ * Usage example:
+ * 	 ct::RangeConstrained<short, 1, 12> month;
+ *
+ * Assgning a value to a variable that is out of the range of the subtype will cause
+ * an std::out_of_range exception to be thrown.
+ * 
+ * Variables of the subtype are fully compatiable with the base type and can substitute
+ * it's variables.
  */
 
 
@@ -73,10 +84,10 @@ public:
     return _val;
   }
  
-  // Allows compatibility between different range constrained instantiations.
-  template<T F, T L>
-  inline operator RangeConstrained<T, F, L> () {
-    return RangeConstrained<T, F, L>(_val);
+  /// Allows assignment between different range constrained instantiations.
+  template<class T2, T2 F, T2 L>
+  inline operator RangeConstrained<T2, F, L> () {
+    return RangeConstrained<T2, F, L>(_val);
   }
 
   inline RangeConstrained& operator += (const T& val) {
