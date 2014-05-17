@@ -27,7 +27,8 @@
  *
  * @section DESCRIPTION
  * 
- * Experimintation and usage examples of the RangeConstrained library.
+ * This file constains unit tests of the RangeConstrained library. The unit tests are
+ * done with the "catch" library.
  *
  */
 
@@ -36,111 +37,15 @@
 #include <vector>
 #include <stdexcept>
 
+#define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
+#include "catch.hpp"
+
 using namespace std;
 
-enum E {
-  A,
-  B,
-  C
-};
 
-void f1(int i) {}
-void f2(ct::RangeConstrained<int, 0, 1000> i) {}
-
-int main(void) {
-  int x;
-  ct::RangeConstrained<int, -1000, 1000> c_x1;
-  ct::RangeConstrained<int, -20, 20> c_x2;
-  
-  char c;
-  ct::RangeConstrained<char, 'a', 'z'> c_c;
-
-  c = 'a';
-  c_c = c;
-
-  c_x1 = c;
-  c_x1 = c_c;
-
-  f2(c_c);
-
-  try {
-    c_x1 = 20000;
-  } catch(out_of_range ex) {
-    cout << ex.what()<< endl;
-  }
-
-  cout << c_x1 << endl;
-
-
-  /*
-  ct::RangeConstrained<int, 0, 1000> x;
-  ct::RangeConstrained<int, 50, 1000> y;
- 
-  int z; 
-  char c = 'Z';
-
-  x = 51;
-  y = x;
-  z = y;
-  x = c;
-  c = x;
-
-  cout << x << " " << y << " " << z << endl;
-
-  x = 5 + x;
-  x = 5 + y;
-  x = x + y;
-  x = x % y;
-  x = x + c;
-  x = c + x;
-
-  cout << x << " " << y << " " << z << endl;
-  
-  cout << ((x > y) | (x < 5)) << endl;
-  
-  f1(x);
-  f2(x);
-  f2(y);
-  f2(z);
-  f2(c);
-
-
-  cout << x.last() << " " << y.first() << endl;
-  
-  
-  z = -x;
-  c = -x;
-  x = -(-x);
-  x = -(-y);
-  x = -z;
-  x = -(-c);
-
-  x += 3;
-  x += x;
-  x += y;
-  z += x;
-  x += c;
-  c += x;
-
-  x++;
-  x--;
-
-  ++x;
-  --x;
-
-  x = -4;
-
-  ct::RangeConstrained<E, A, B> e;
-  e = A;
-
-  ct::RangeConstrained<char, 50, 200> s;
-  s = 3;
-  s = (ct::RangeConstrained<char, 50, 200>)x;
-  //x = s;
-  
-
-  return 0;
-  */
+TEST_CASE( "Simple test", "a" ) {
+  ct::RangeConstrained<int, 15, 100> x = 50;
+  x = 15;
+  x = 100;
+  REQUIRE( x == 100 );
 }
-
-

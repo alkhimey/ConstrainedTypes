@@ -1,6 +1,6 @@
 /**
  * @author  Artium Nihamkin <artium@nihamkin.com>
- * @version 1.0.0
+ * @version 1.0.1
  * @date May 2014 
  *
  * @section LICENSE
@@ -28,16 +28,18 @@
  *
  * @section DESCRIPTION
  * 
- * This library allows definition of range constrained subtypes of discreete types.
+ * This library allows definition of range constrained subtypes of discrete types.
  * Variables of these types are limited to hold values of a defined range.
  *
  * Usage example:
  * 	 ct::RangeConstrained<short, 1, 12> month;
  *
- * Assgning a value to a variable that is out of the range of the subtype will cause
+ * The range boundaries are inclusive.
+ *
+ * Assigning a value to a variable that is out of the range of the subtype will cause
  * an std::out_of_range exception to be thrown.
  * 
- * Variables of the subtype are fully compatiable with the base type and can substitute
+ * Variables of the subtype are fully compatible with the base type and can substitute
  * it's variables.
  */
 
@@ -48,21 +50,40 @@
 #include <stdexcept>
 #include <sstream>
 #include <string>
+#include <limits>
 
 namespace ConstrainedTypes {
 
-
 template<class T, T First, T Last>
 class RangeConstrained {
+public:
+
+  /// Custom exception used to indicate that value was out of range.
+  class constraint_error : public std::out_of_range {
+  private:
+    const T _val, _first, _last;
+    
+    static std::string to_string( const T& n ){
+        std::ostringstream stm ;
+        stm << n ;
+        return stm.str() ;
+    }
+    
+  public:
+    constraint_error(T val, T first, T last) : _val(val), _first(first), _last(last), 
+					       std::out_of_range("The value " + to_string(val) + " is out of the range [" + 
+								 to_string(first) + ", " + to_string(last) + "]") {}
+    inline const T getVal() const { return _val;}
+    inline const T getFirst() const { return _first;}
+    inline const T getLast() const { return _last;}
+  };
 
 private:
   T _val;
   
   inline static const T& range_check(const T& val) {
     if ((val < First) || (val > Last)) {
-      std::ostringstream strm;
-      strm << "The value " << val << " is outside the range " << "[" << First << ", " << Last << "]";
-      throw std::out_of_range (strm.str());
+      throw constraint_error (val, First, Last);
     }
     return val;
   }
@@ -80,59 +101,79 @@ public:
     return First;
   }
 
-  inline operator T () {
+  inline operator T () const {
     return _val;
   }
  
   /// Allows assignment between different range constrained instantiations.
   template<class T2, T2 F, T2 L>
-  inline operator RangeConstrained<T2, F, L> () {
+  inline operator RangeConstrained<T2, F, L> () const {
     return RangeConstrained<T2, F, L>(_val);
   }
 
-  inline RangeConstrained& operator += (const T& val) {
-    _val += val;
+  inline RangeConstrained& operator += (const T& other) {
+    //if(std::numeric_limits<T>::max() - other > _val)
+    //  throw std::out_of_range ("Out of the base type range");
+
+    T temp = _val;
+    temp += other;
+    _val = range_check(temp);
     return *this;
   }
 
-  inline RangeConstrained& operator -= (const T& val) {
-    _val -= val;
+  inline RangeConstrained& operator -= (const T& other) {
+    T temp = _val;
+    temp -= other;
+    _val = range_check(temp);
     return *this;
   }
 
-  inline RangeConstrained& operator *= (const T& val) {
-    _val *= val;
+  inline RangeConstrained& operator *= (const T& other) {
+    T temp = _val;
+    temp *= other;
+    _val = range_check(temp);
     return *this;
    }
 
-   inline RangeConstrained& operator /= (const T& val) {
-    _val /= val;
+   inline RangeConstrained& operator /= (const T& other) {
+    T temp = _val;
+    temp /= other;
+    _val = range_check(temp);
     return *this;
    }
 
-  inline RangeConstrained& operator %= (const T& val) {
-    _val %= val;
+  inline RangeConstrained& operator %= (const T& other) {
+    T temp = _val;
+    temp %= other;
+    _val = range_check(temp);
     return *this;
   }
 
   inline RangeConstrained& operator ++() {
-    _val++;
+    T temp = _val;
+    temp++;
+    _val = range_check(temp);
     return *this;
   }
 
   inline RangeConstrained& operator --() {
-    _val--;
-    return *this;
+    T temp = _val;
+    temp--;
+    _val = range_check(temp);
+
   }
 
   inline RangeConstrained& operator ++(int) {
-    _val++;
-    return *this;
+    T temp = _val;
+    ++temp;
+    _val = range_check(temp);
   }
 
   inline RangeConstrained& operator --(int) {
-    _val--;
-    return *this;
+    T temp = _val;
+    --temp;
+    _val = range_check(temp);
+
   }
 
 
