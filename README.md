@@ -35,7 +35,7 @@ Variables of the subtype are fully compatible with the base type and can substit
 
 TODO:
 ------
-[ ] Finish writing tests.
-[ ] Create a safe array template whose [] operator is parameterize to be only a constrained type.
-[ ] Check if an operation's result is out of range of the base type. Use numeric_limits and be cautious as even the "%" operator can cause overflows.
-[ ] Allow custom overflow handling.
+- [ ] Finish writing tests.
+- [ ] Create a safe array template whose [] operator is parameterize to be only a constrained type.
+- [ ] Check if an operation's result is out of range of the base type. Use numeric_limits and be cautious as even the "%" operator can cause overflows.
+- [ ] Allow custom overflow handling.
