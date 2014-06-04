@@ -27,7 +27,7 @@
  *
  * @section DESCRIPTION
  * 
- * This file constains unit tests of the RangeConstrained library. The unit tests are
+ * This file contains unit tests of the RangeConstrained library. The unit tests are
  * done with the "catch" library.
  *
  */
@@ -43,9 +43,129 @@
 using namespace std;
 
 
-TEST_CASE( "Simple test", "a" ) {
+enum E {
+  A, B, C, D, E, F, G
+};
+
+typedef ct::RangeConstrained<short, 1, 12> month_t;
+
+
+TEST_CASE( "basic") {
   ct::RangeConstrained<int, 15, 100> x = 50;
-  x = 15;
-  x = 100;
-  REQUIRE( x == 100 );
+  CHECK_NOTHROW(x = 15);
+  CHECK_NOTHROW(x = 100);
+  CHECK( x == 100 );
+
+  CHECK_THROWS(x = 14);
+  CHECK_THROWS(x = 101);
+}
+
+
+
+
+TEST_CASE( "demo", "The demo used in the readme that demonstrates usefullness of this idiom" ) {
+  int  revenue[(int)month_t::range_size()];
+  
+  month_t m;
+  while (m < month_t::last()) {
+    revenue[m] = 10000;
+    m++;
+  }
+
+}
+
+
+TEST_CASE( "enum") {
+  ct::RangeConstrained<enum E, B, D> e = C;
+  
+  CHECK_THROWS(e = E);
+  CHECK_THROWS(e = A);
+  CHECK(e == C);
+  CHECK_NOTHROW(e = D);
+  CHECK(e == D);
+}
+
+
+TEST_CASE( "basic addition") {
+  ct::RangeConstrained<int, 15, 130> x = 50;
+  
+  CHECK_NOTHROW(x = x + 15);
+  CHECK_NOTHROW(x = x + x);
+  CHECK( x == 130 );
+  
+  CHECK_THROWS(x = x + 1);
+  
+}
+
+TEST_CASE( "basic substraction") {
+  ct::RangeConstrained<int, 0, 100> x = 15;
+  
+  CHECK_NOTHROW(x = x - 15);
+  CHECK_NOTHROW(x = x - x);
+  CHECK( x == 0 );
+  
+  CHECK_THROWS(x = x - 1);
+  
+}
+
+TEST_CASE( "unary substraction and addition") {
+  ct::RangeConstrained<int, 0, 100> x = 99;
+  ct::RangeConstrained<int, 0, 100> y = 1;
+  
+  SECTION( "post" ) {
+    CHECK_NOTHROW(x++);
+    CHECK_THROWS(x++);
+    CHECK( x == 100 );
+  
+    CHECK_NOTHROW(y--);
+    CHECK_THROWS(y--);
+    CHECK( y == 0 );
+  }
+
+  SECTION( "pre" ) {
+    CHECK_NOTHROW(++x);
+    CHECK_THROWS(++x);
+    CHECK( x == 100 );
+    
+    CHECK_NOTHROW(--y);
+    CHECK_THROWS(--y);
+    CHECK( y == 0 );
+  }
+}
+
+TEST_CASE( "basic comparison") {
+  ct::RangeConstrained<int, 0, 100> x = 100;
+  ct::RangeConstrained<int, 0, 100> y = 0;
+  
+  CHECK( x != y);
+  CHECK( x > y);
+  CHECK( x >= y);
+  CHECK( y < x);
+  CHECK( y <= x);
+
+  // TODO: Finish
+}
+
+TEST_CASE( "attributes") {
+  int x = 4;
+  ct::RangeConstrained<int, 0, 100> y = 5;
+
+  x = ct::RangeConstrained<int, 0, 100>::first();
+  CHECK(x == 0);
+  
+  x = ct::RangeConstrained<int, 0, 100>::last();
+  CHECK(x == 100);
+    
+  x = ct::RangeConstrained<int, 0, 100>::range_size();
+  CHECK(x == 101);
+
+  y = ct::RangeConstrained<int, 0, 100>::first();
+  CHECK(y == 0);
+    
+  y = ct::RangeConstrained<int, 0, 100>::last();
+  CHECK(y == 100);
+
+  y = ct::RangeConstrained<int, 0, 100>::range_size();
+  CHECK(y == 101);
+
 }

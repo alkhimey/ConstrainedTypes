@@ -1,16 +1,39 @@
 ConstrainedTypes
 ================
 
-This library allows definition of range constrained subtypes of discreete types.
-Variables of these types are limited to hold values of a defined range.
+This library allows definition of range constrained subtypes of discrete types.
+
+Variables of these types are limited to hold values of a defined range. Assigning a value to a variable that is out of the range of the subtype will cause an exception to be thrown.
+
+This idiom was adopted from Ada and is useful for writing safe code.
 
 Usage example:
 
 ```C++
-ct::RangeConstrained<short, 1, 12> month;
-month = 5; // ok
-month = 13; // std::out_of_range exception is thrown
+typedef ct::RangeConstrained<short, 1, 12> month_t;
+
+int  revenue[(int)month_t::range_size()];
+ month_t m;
+while (m < month_t::last()) {
+  revenue[m] = 10000;
+  m++;
+}
 ```
 
-Assgning a value to a variable that is out of the range of the subtype will cause an `std::out_of_range` exception to be thrown.
-Variables of the subtype are fully compatiable with the base type and can substitute it's variables.
+Notice that the range boundaries are inclusive.
+
+Any discreet type can be used as a base, including enums:
+
+```C++
+enum DAY {  SUN, MON, TUE, WED, THU, FRI, SAT }; 
+
+ct::RangeConstrained<enum DAY, SUN, THU> current_workday;
+```
+
+Variables of the subtype are fully compatible with the base type and can substitute it's variables in any scenario.
+
+
+TODO:
+======
+* Create a safe array template whose [] operator is parametrized to be only a constrained type.
+* Check if an operation's result is out of range of the base type. Use numeric_limits and be cautious as even the "%" operator can cause overflows.

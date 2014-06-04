@@ -29,18 +29,19 @@
  * @section DESCRIPTION
  * 
  * This library allows definition of range constrained subtypes of discrete types.
- * Variables of these types are limited to hold values of a defined range.
+ * Variables of these types are limited to contain values of a defined range.
  *
  * Usage example:
  * 	 ct::RangeConstrained<short, 1, 12> month;
  *
- * The range boundaries are inclusive.
+ * Notice that the range boundaries are inclusive: month can hold values between 1 to 12 including 1 and 12.
  *
  * Assigning a value to a variable that is out of the range of the subtype will cause
- * an std::out_of_range exception to be thrown.
+ * an exception to be thrown.
  * 
  * Variables of the subtype are fully compatible with the base type and can substitute
  * it's variables.
+ *
  */
 
 
@@ -64,9 +65,9 @@ public:
     const T _val, _first, _last;
     
     static std::string to_string( const T& n ){
-        std::ostringstream stm ;
-        stm << n ;
-        return stm.str() ;
+      std::ostringstream stm ;
+      stm << n ;
+      return stm.str() ;
     }
     
   public:
@@ -77,7 +78,7 @@ public:
     inline const T getFirst() const { return _first;}
     inline const T getLast() const { return _last;}
   };
-
+  
 private:
   T _val;
   
@@ -93,19 +94,24 @@ public:
   RangeConstrained() : _val(First) {}
   RangeConstrained(const T& val) : _val(range_check(val)) {}
   
-  inline T first(void) const {
+  
+  inline static T first(void)  {
     return First;
   }
 
-  inline T last(void) const {
-    return First;
+  inline static T last(void) {
+    return Last;
+  }
+
+  inline static T range_size(void)  {
+    return Last - First + 1;
   }
 
   inline operator T () const {
     return _val;
   }
  
-  /// Allows assignment between different range constrained instantiations.
+  /// Allows assignments between different range constrained instantiations.
   template<class T2, T2 F, T2 L>
   inline operator RangeConstrained<T2, F, L> () const {
     return RangeConstrained<T2, F, L>(_val);
