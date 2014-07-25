@@ -28,7 +28,7 @@
  * @section DESCRIPTION
  * 
  * This file contains unit tests of the RangeConstrained library. The unit tests are
- * done with the "catch" library.
+ * implemented with the "catch" unit testing library.
  *
  */
 
@@ -47,8 +47,32 @@ enum E {
   A, B, C, D, E, F, G
 };
 
+
+
 typedef ct::RangeConstrained<short, 1, 12> month_t;
 
+
+int f1(int x) {
+  return x;
+}
+
+int f2(month_t x) {
+  return x;
+}
+
+month_t f3(int x) {
+  return x;
+}
+
+month_t f4(month_t x) {
+  return x;
+}
+
+/////////////////////////////////////////////////
+///                                           ///
+/// Test cases start here                     ///
+///                                           ///
+/////////////////////////////////////////////////
 
 TEST_CASE( "basic" ) {
   ct::RangeConstrained<int, 15, 100> x = 50;
@@ -62,7 +86,7 @@ TEST_CASE( "basic" ) {
 
 
 
-
+//TODO: There is actually a bug in this example!
 TEST_CASE( "demo", "The demo used in the readme that demonstrates usefullness of this idiom" ) {
   int  revenue[(int)month_t::range_size()];
   
@@ -86,7 +110,7 @@ TEST_CASE( "enum" ) {
 }
 
 
-TEST_CASE( "basic addition") {
+TEST_CASE( "basic addition" ) {
   ct::RangeConstrained<int, 15, 130> x = 50;
   
   CHECK_NOTHROW(x = x + 15);
@@ -97,7 +121,7 @@ TEST_CASE( "basic addition") {
   
 }
 
-TEST_CASE( "basic substraction") {
+TEST_CASE( "basic substraction" ) {
   ct::RangeConstrained<int, 0, 100> x = 15;
   
   CHECK_NOTHROW(x = x - 15);
@@ -108,7 +132,7 @@ TEST_CASE( "basic substraction") {
   
 }
 
-TEST_CASE( "unary substraction and addition") {
+TEST_CASE( "unary substraction and addition" ) {
   ct::RangeConstrained<int, 0, 100> x = 99;
   ct::RangeConstrained<int, 0, 100> y = 1;
   
@@ -216,3 +240,39 @@ TEST_CASE( "mixed types" ) {
   CHECK_NOTHROW(a = x);
   CHECK_NOTHROW(x = a);
 }
+
+
+TEST_CASE(" function compatiabillity ") {
+  month_t a = 6;
+  
+  SECTION(" parameter is int ") {
+    CHECK(f1(1) == 1);
+    CHECK(f2(1) == 1);
+    CHECK(f3(1) == 1);
+    CHECK(f4(1) == 1);
+  }
+
+  SECTION(" parameter is constrained type ") {
+    CHECK(f1(a) == 6);
+    CHECK(f2(a) == 6);
+    CHECK(f3(a) == 6);
+    CHECK(f4(a) == 6);
+  }
+
+  SECTION(" parameter is  out of range ") {
+    CHECK(f1(13) == 13);
+    CHECK_THROWS(f2(13));
+    CHECK_THROWS(f3(13));
+    CHECK_THROWS(f4(13));
+  }
+}
+
+TEST_CASE(" array access ") {
+  int  a[5];
+  ct::RangeConstrained<int, 0, 4> x = 3;
+
+  CHECK_NOTHROW(a[x] = 5);
+  CHECK_NOTHROW(a[5] = x);
+  CHECK_NOTHROW(x = a[5]);
+}
+
