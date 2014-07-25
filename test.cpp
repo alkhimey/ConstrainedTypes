@@ -50,7 +50,7 @@ enum E {
 typedef ct::RangeConstrained<short, 1, 12> month_t;
 
 
-TEST_CASE( "basic") {
+TEST_CASE( "basic" ) {
   ct::RangeConstrained<int, 15, 100> x = 50;
   CHECK_NOTHROW(x = 15);
   CHECK_NOTHROW(x = 100);
@@ -75,7 +75,7 @@ TEST_CASE( "demo", "The demo used in the readme that demonstrates usefullness of
 }
 
 
-TEST_CASE( "enum") {
+TEST_CASE( "enum" ) {
   ct::RangeConstrained<enum E, B, D> e = C;
   
   CHECK_THROWS(e = E);
@@ -133,9 +133,10 @@ TEST_CASE( "unary substraction and addition") {
   }
 }
 
-TEST_CASE( "basic comparison") {
+TEST_CASE( "basic comparison" ) {
   ct::RangeConstrained<int, 0, 100> x = 100;
   ct::RangeConstrained<int, 0, 100> y = 0;
+  int z = -2;
   
   CHECK( x != y);
   CHECK( x > y);
@@ -143,10 +144,14 @@ TEST_CASE( "basic comparison") {
   CHECK( y < x);
   CHECK( y <= x);
 
-  // TODO: Finish
+  CHECK( x != z);
+  CHECK( x > z);
+  CHECK( x >= z);
+  CHECK( z < x);
+  CHECK( z <= x);
 }
 
-TEST_CASE( "attributes") {
+TEST_CASE( "attributes" ) {
   int x = 4;
   ct::RangeConstrained<int, 0, 100> y = 5;
 
@@ -164,8 +169,50 @@ TEST_CASE( "attributes") {
     
   y = ct::RangeConstrained<int, 0, 100>::last();
   CHECK(y == 100);
+}
 
-  y = ct::RangeConstrained<int, 0, 100>::range_size();
-  CHECK(y == 101);
+/*
+TEST_CASE( "inception" ) {
+  ct::RangeConstrained<int, 0, 100> a = 54;
+  ct::RangeConstrained< ct::RangeConstrained< int, 0, 100 > , 50, 120 > b = 55;
+  int x;
 
+  SECTION( "outside in 1" ) {
+    CHECK_NOTHROW(b = a);
+    CHECK(b == 54);
+  }
+
+  SECTION( "outside in 2" ) {
+    CHECK_NOTHROW(b = 53);
+    CHECK(b == 53);
+  }
+
+  SECTION( "inside out 1" ) {
+    CHECK_NOTHROW(a = b);
+    CHECK(a == 55);
+  }
+
+  SECTION( "inside out 2" ) {
+    CHECK_NOTHROW(x = b);
+    CHECK(x == 55);
+  }
+
+  SECTION( "non overlapping parts") {
+    CHECK_THROWS(b = 120);
+    CHECK_THROWS(b = 0);
+  }
+  }*/
+
+TEST_CASE( "mixed types" ) {
+  ct::RangeConstrained<int, 0, 100> a = 50;
+  ct::RangeConstrained<short, 0, 100> b = 25;
+  short x = 20;
+
+  CHECK_NOTHROW(a = b);
+  CHECK_NOTHROW(b = a);
+  CHECK_NOTHROW(a = a + b);
+  CHECK_NOTHROW(b = b + a);
+
+  CHECK_NOTHROW(a = x);
+  CHECK_NOTHROW(x = a);
 }
