@@ -86,17 +86,19 @@ TEST_CASE( "basic" ) {
 
 
 
-//TODO: There is actually a bug in this example!
 TEST_CASE( "demo", "The demo used in the readme that demonstrates usefullness of this idiom" ) {
-  int  revenue[(int)month_t::range_size()];
-  
-  month_t m;
-  while (m < month_t::last()) {
-    revenue[m] = 10000;
-    m++;
-  }
-
+  month_t m = 1;
+  CHECK_NOTHROW(m = 2); // OK
+  CHECK_THROWS(m = 13);  // "The value 13 is out of the range [1, 12]"
 }
+
+
+TEST_CASE( "demo2", "The demo used in the readme that demonstrates compatibility" ) {
+  month_t m = 12;
+  CHECK_NOTHROW(f1(m)); // OK
+  CHECK_THROWS(f4(13)); // Exception
+}
+
 
 
 TEST_CASE( "enum" ) {
@@ -242,7 +244,7 @@ TEST_CASE( "mixed types" ) {
 }
 
 
-TEST_CASE(" function compatiabillity ") {
+TEST_CASE( "function compatiabillity" ) {
   month_t a = 6;
   
   SECTION(" parameter is int ") {
@@ -252,14 +254,14 @@ TEST_CASE(" function compatiabillity ") {
     CHECK(f4(1) == 1);
   }
 
-  SECTION(" parameter is constrained type ") {
+  SECTION( "parameter is constrained type" ) {
     CHECK(f1(a) == 6);
     CHECK(f2(a) == 6);
     CHECK(f3(a) == 6);
     CHECK(f4(a) == 6);
   }
 
-  SECTION(" parameter is  out of range ") {
+  SECTION( "parameter is out of range" ) {
     CHECK(f1(13) == 13);
     CHECK_THROWS(f2(13));
     CHECK_THROWS(f3(13));
@@ -267,7 +269,7 @@ TEST_CASE(" function compatiabillity ") {
   }
 }
 
-TEST_CASE(" array access ") {
+TEST_CASE( "array access" ) {
   int  a[5];
   ct::RangeConstrained<int, 0, 4> x = 3;
 
@@ -275,4 +277,43 @@ TEST_CASE(" array access ") {
   CHECK_NOTHROW(a[5] = x);
   CHECK_NOTHROW(x = a[5]);
 }
+
+TEST_CASE( "intermidiate overflows", "overflows in intermidiate operations are allowed") {
+  ct::RangeConstrained<int, 1, 4> x = 3;
+  ct::RangeConstrained<int, 1, 4> y = 2;
+  int z;
+
+  CHECK_NOTHROW(x = (x + y) - y);
+  CHECK(x == 3);
+  CHECK_NOTHROW(x = (x + 2) - 2);
+  CHECK(x == 3);
+  CHECK_NOTHROW(x = (x - 5*y) + 5*y);
+  CHECK(x == 3);  
+  CHECK_NOTHROW(x = (x - 5) + 5);
+  CHECK(x == 3);  
+  CHECK_NOTHROW(x = (x * y) / y);
+  CHECK(x == 3);
+  CHECK_NOTHROW(x = (x * 5) / 5);
+  CHECK(x == 3);
+
+  CHECK_THROWS(x = (x + y + y + y));
+  CHECK_NOTHROW(z = (x + y + y + y));
+  CHECK_NOTHROW(x = (x + y + y + y) - y -y -y -y);
+  CHECK(x == 1);
+}
+
+TEST_CASE( "explicit casting") {
+  month_t m = 5;
+  int k;
+  
+
+  CHECK_NOTHROW(k = (int)m); // Notice that underlying of month_t is short
+  CHECK(k == 5);
+
+  CHECK_NOTHROW(m = (month_t)k);
+  CHECK(k == 5);
+  
+  CHECK_THROWS(m = (month_t)13);
+}
+
 
