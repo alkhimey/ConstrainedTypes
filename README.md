@@ -39,7 +39,7 @@ void f2(month_t m) {return;}
 }
 ```
 
-Range checking is performed only during the assignment, therfore intermidiate opertations can be out of range.
+Range checking is performed only during the assignment, therefore intermediate operations can be out of range.
 
 ```C++
 ct::RangeConstrained<int, 1, 4> x = 3;
@@ -54,5 +54,5 @@ x = (x + y) - y; // OK
 
 Further Work:
 ------
-- [ ] Create a safe array template whose [] operator is parameterize to be only a constrained type.
+- [ ] Create a safe array template whose [] operator is parameterized to be only a constrained type.
 - [ ] Allow custom overflow handling.(?)
