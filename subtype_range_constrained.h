@@ -71,9 +71,11 @@ public:
     }
     
   public:
-    constraint_error(T val, T first, T last) : _val(val), _first(first), _last(last), 
-					       std::out_of_range("The value " + to_string(val) + " is out of the range [" + 
-								 to_string(first) + ", " + to_string(last) + "]") {}
+    constraint_error(T val, T first, T last) : 
+       std::out_of_range("The value " + to_string(val) + " is out of the range [" + 
+       to_string(first) + ", " + to_string(last) + "]"), 
+       _val(val), _first(first), _last(last) {}
+
     inline const T getVal() const { return _val;}
     inline const T getFirst() const { return _first;}
     inline const T getLast() const { return _last;}
