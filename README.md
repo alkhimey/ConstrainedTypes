@@ -26,12 +26,12 @@ ct::RangeConstrained<enum DAY, SUN, THU> current_workday;
 Variables of the subtype are fully compatible with the underlying type and can substitute it's variables in any scenario.
 
 ```C++
-typedef ct::RangeConstrained<short, 1, 12> month_t;</p>
+typedef ct::RangeConstrained<short, 1, 12> month_t;
 
 void f1(int x) {return;}
 void f2(month_t m) {return;}
 
-<p>int main(void) {
+int main(void) {
     month_t m = 1;
     f1(m);  // OK
     f2(12); // OK 
