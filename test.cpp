@@ -89,7 +89,20 @@ TEST_CASE( "basic" ) {
   CHECK_THROWS(x = 101);
 }
 
+TEST_CASE( "const construction" ) {
+  const ct::RangeConstrained<int, 15, 100> x1 = 50;
+  CHECK( x1 == 50 );
 
+  const int a = 50;
+  ct::RangeConstrained<int, 15, 100> x2 = a;
+  CHECK( x2 == 50 );
+
+  const ct::RangeConstrained<int, 15, 100> x3 = a;
+  CHECK( x3 == 50 );
+
+  // Can't test this with Catch
+  //CHECK_THROWS(  const ct::RangeConstrained<int, 15, 100> x4 = 101);
+}
 
 TEST_CASE( "demo", "The demo used in the readme that demonstrates usefullness of this idiom" ) {
   month_t m = 1;
