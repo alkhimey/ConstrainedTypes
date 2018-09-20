@@ -1,6 +1,6 @@
 /**
  * @author  Artium Nihamkin <artium@nihamkin.com>
- * @version 1.0.1
+ * @version 1.0.2
  * @date May 2014 
  *
  * @section LICENSE
@@ -155,6 +155,9 @@ public:
     return *this;
   }
 
+  /**
+   * Prefix, return reference of this
+   */
   inline RangeConstrained& operator ++() {
     T temp = _val;
     temp++;
@@ -162,24 +165,33 @@ public:
     return *this;
   }
 
+  /**
+   * Prefix, return reference of this
+   */
   inline RangeConstrained& operator --() {
     T temp = _val;
     temp--;
     _val = range_check(temp);
-
+    return *this;
   }
 
-  inline RangeConstrained& operator ++(int) {
+  /**
+   * Postfix, return old value by value
+   */
+  inline const RangeConstrained operator ++(int) {
+    RangeConstrained old(*this);
     T temp = _val;
     ++temp;
     _val = range_check(temp);
+    return old;
   }
 
-  inline RangeConstrained& operator --(int) {
+  inline const RangeConstrained operator --(int) {
+    RangeConstrained old(*this);
     T temp = _val;
     --temp;
     _val = range_check(temp);
-
+    return old;
   }
 
 

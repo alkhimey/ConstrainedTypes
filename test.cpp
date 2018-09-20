@@ -42,6 +42,11 @@
 
 using namespace std;
 
+/* https://stackoverflow.com/questions/36296425 */
+template <typename T>
+constexpr bool is_lvalue(T&&) {
+  return std::is_lvalue_reference<T>{};
+}
 
 enum E {
   A, B, C, D, E, F, G
@@ -315,5 +320,84 @@ TEST_CASE( "explicit casting") {
   
   CHECK_THROWS(m = (month_t)13);
 }
+
+TEST_CASE( "unary substraction/addiotion advanced test") {
+  month_t m = 10;
+  month_t m2;
+
+  SECTION(" prefix operation should modify the the veriable first ") {
+    
+    SECTION("increment") {
+      m2 = ++m;
+      CHECK(m  == 11);
+      CHECK(m2 == 11);
+    }
+
+    SECTION("increment") {
+      m2 = --m;
+      CHECK(m  == 9);
+      CHECK(m2 == 9);
+    }
+  }
+
+  SECTION(" postfix operation should modify the the veriable after ") {
+    
+    SECTION("increment") {
+      m2 = m++;
+      CHECK(m  == 11);
+      CHECK(m2 == 10);
+    }
+
+    SECTION("increment") {
+      m2 = m--;
+      CHECK(m  == 9);
+      CHECK(m2 == 10);
+    }
+  }
+
+  SECTION(" prefix chaining ") {
+
+    SECTION("increment") {
+      m2 = ++++m;
+      CHECK(m  == 12);
+      CHECK(m2 == 12);
+    }
+
+    SECTION("increment") {
+      m2 = ----m;
+      CHECK(m  == 8);
+      CHECK(m2 == 8);
+    }
+  }
+
+  /* No postfix chaining - compilation error should occur */
+
+  SECTION(" postfix returns const by value which is not lvalue ") {
+
+    SECTION("increment") {
+      CHECK_FALSE(is_lvalue(m++));  
+    }
+
+    SECTION("increment") {
+      CHECK_FALSE(is_lvalue(m--));
+    }
+  }
+
+  SECTION(" prefix returns by reference which is an lvalue ") {
+
+    SECTION("increment") {
+      CHECK(is_lvalue(++m));  
+    }
+
+    SECTION("increment") {
+      CHECK(is_lvalue(--m));
+    }
+  }
+}
+
+
+
+
+
 
 
