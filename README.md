@@ -12,6 +12,7 @@ int main(void) {
 	month_t m = 1;
 	m = 12; // OK
 	m = 13; // Exception with the message: "The value 13 is out of the range [1, 12]"
+   return 0;
 }
 ```
 

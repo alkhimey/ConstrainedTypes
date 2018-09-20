@@ -42,6 +42,11 @@
 
 using namespace std;
 
+/* https://stackoverflow.com/questions/36296425 */
+template <typename T>
+constexpr bool is_lvalue(T&&) {
+  return std::is_lvalue_reference<T>{};
+}
 
 enum E {
   A, B, C, D, E, F, G
@@ -84,7 +89,20 @@ TEST_CASE( "basic" ) {
   CHECK_THROWS(x = 101);
 }
 
+TEST_CASE( "const construction" ) {
+  const ct::RangeConstrained<int, 15, 100> x1 = 50;
+  CHECK( x1 == 50 );
 
+  const int a = 50;
+  ct::RangeConstrained<int, 15, 100> x2 = a;
+  CHECK( x2 == 50 );
+
+  const ct::RangeConstrained<int, 15, 100> x3 = a;
+  CHECK( x3 == 50 );
+
+  // Can't test this with Catch
+  //CHECK_THROWS(  const ct::RangeConstrained<int, 15, 100> x4 = 101);
+}
 
 TEST_CASE( "demo", "The demo used in the readme that demonstrates usefullness of this idiom" ) {
   month_t m = 1;
@@ -315,5 +333,84 @@ TEST_CASE( "explicit casting") {
   
   CHECK_THROWS(m = (month_t)13);
 }
+
+TEST_CASE( "unary substraction/addiotion advanced test") {
+  month_t m = 10;
+  month_t m2;
+
+  SECTION(" prefix operation should modify the the veriable first ") {
+    
+    SECTION("increment") {
+      m2 = ++m;
+      CHECK(m  == 11);
+      CHECK(m2 == 11);
+    }
+
+    SECTION("increment") {
+      m2 = --m;
+      CHECK(m  == 9);
+      CHECK(m2 == 9);
+    }
+  }
+
+  SECTION(" postfix operation should modify the the veriable after ") {
+    
+    SECTION("increment") {
+      m2 = m++;
+      CHECK(m  == 11);
+      CHECK(m2 == 10);
+    }
+
+    SECTION("increment") {
+      m2 = m--;
+      CHECK(m  == 9);
+      CHECK(m2 == 10);
+    }
+  }
+
+  SECTION(" prefix chaining ") {
+
+    SECTION("increment") {
+      m2 = ++++m;
+      CHECK(m  == 12);
+      CHECK(m2 == 12);
+    }
+
+    SECTION("increment") {
+      m2 = ----m;
+      CHECK(m  == 8);
+      CHECK(m2 == 8);
+    }
+  }
+
+  /* No postfix chaining - compilation error should occur */
+
+  SECTION(" postfix returns const by value which is not lvalue ") {
+
+    SECTION("increment") {
+      CHECK_FALSE(is_lvalue(m++));  
+    }
+
+    SECTION("increment") {
+      CHECK_FALSE(is_lvalue(m--));
+    }
+  }
+
+  SECTION(" prefix returns by reference which is an lvalue ") {
+
+    SECTION("increment") {
+      CHECK(is_lvalue(++m));  
+    }
+
+    SECTION("increment") {
+      CHECK(is_lvalue(--m));
+    }
+  }
+}
+
+
+
+
+
 
 

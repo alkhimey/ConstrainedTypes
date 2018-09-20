@@ -1,6 +1,6 @@
 /**
  * @author  Artium Nihamkin <artium@nihamkin.com>
- * @version 1.0.1
+ * @version 1.0.2
  * @date May 2014 
  *
  * @section LICENSE
@@ -71,9 +71,11 @@ public:
     }
     
   public:
-    constraint_error(T val, T first, T last) : _val(val), _first(first), _last(last), 
-					       std::out_of_range("The value " + to_string(val) + " is out of the range [" + 
-								 to_string(first) + ", " + to_string(last) + "]") {}
+    constraint_error(T val, T first, T last) : 
+       std::out_of_range("The value " + to_string(val) + " is out of the range [" + 
+       to_string(first) + ", " + to_string(last) + "]"), 
+       _val(val), _first(first), _last(last) {}
+
     inline const T getVal() const { return _val;}
     inline const T getFirst() const { return _first;}
     inline const T getLast() const { return _last;}
@@ -155,6 +157,9 @@ public:
     return *this;
   }
 
+  /**
+   * Prefix, return reference of this
+   */
   inline RangeConstrained& operator ++() {
     T temp = _val;
     temp++;
@@ -162,24 +167,33 @@ public:
     return *this;
   }
 
+  /**
+   * Prefix, return reference of this
+   */
   inline RangeConstrained& operator --() {
     T temp = _val;
     temp--;
     _val = range_check(temp);
-
+    return *this;
   }
 
-  inline RangeConstrained& operator ++(int) {
+  /**
+   * Postfix, return old value by value
+   */
+  inline const RangeConstrained operator ++(int) {
+    RangeConstrained old(*this);
     T temp = _val;
     ++temp;
     _val = range_check(temp);
+    return old;
   }
 
-  inline RangeConstrained& operator --(int) {
+  inline const RangeConstrained operator --(int) {
+    RangeConstrained old(*this);
     T temp = _val;
     --temp;
     _val = range_check(temp);
-
+    return old;
   }
 
 
