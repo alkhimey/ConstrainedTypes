@@ -105,8 +105,8 @@ public:
     return Last;
   }
 
-  inline static T range_size(void)  {
-    return Last - First + 1;
+  inline static size_t range_size(void)  {
+    return Last < First ? 0 : (size_t)Last - (size_t)First + 1;
   }
 
   inline operator T () const {
