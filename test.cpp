@@ -5,7 +5,7 @@
  * @section LICENSE
  *
  * The MIT License (MIT)
- * Copyright © 2014 Artium Nihamkin, http://nihamkin.com
+ * Copyright © 2014-2019 Artium Nihamkin, http://nihamkin.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the “Software”), to deal
@@ -52,10 +52,7 @@ enum E {
   A, B, C, D, E, F, G
 };
 
-
-
 typedef ct::RangeConstrained<short, 1, 12> month_t;
-
 
 int f1(int x) {
   return x;
@@ -81,12 +78,27 @@ month_t f4(month_t x) {
 
 TEST_CASE( "basic" ) {
   ct::RangeConstrained<int, 15, 100> x = 50;
+
   CHECK_NOTHROW(x = 15);
   CHECK_NOTHROW(x = 100);
   CHECK( x == 100 );
 
   CHECK_THROWS(x = 14);
   CHECK_THROWS(x = 101);
+}
+
+TEST_CASE( "negative" ) {
+  ct::RangeConstrained<int, -100, 100> x = -0;
+  CHECK_NOTHROW(x = 100);
+  CHECK_NOTHROW(x = -100);
+  CHECK( x == -100);
+
+  CHECK_THROWS(x = -101);
+  CHECK_THROWS(x = 101);
+
+  CHECK(ct::RangeConstrained<int, -100, 100>::first() == -100);
+  CHECK(ct::RangeConstrained<int, -100, 100>::last() == 100);
+  CHECK(ct::RangeConstrained<int, -100, 100>::range_size() == 201);
 }
 
 TEST_CASE( "const construction" ) {
@@ -104,6 +116,7 @@ TEST_CASE( "const construction" ) {
   //CHECK_THROWS(  const ct::RangeConstrained<int, 15, 100> x4 = 101);
 }
 
+
 TEST_CASE( "demo", "The demo used in the readme that demonstrates usefullness of this idiom" ) {
   month_t m = 1;
   CHECK_NOTHROW(m = 2); // OK
@@ -118,7 +131,6 @@ TEST_CASE( "demo2", "The demo used in the readme that demonstrates compatibility
 }
 
 
-
 TEST_CASE( "enum" ) {
   ct::RangeConstrained<enum E, B, D> e = C;
   
@@ -130,6 +142,42 @@ TEST_CASE( "enum" ) {
 }
 
 
+TEST_CASE( "char" ) {
+  ct::RangeConstrained<char, 'a', 'z'> ch = 'a';
+
+  CHECK_THROWS(ch = '%');  
+  CHECK_THROWS(ch = 'a' - 1);
+  CHECK_THROWS(ch = 'z' + 1);
+  CHECK(ch == 'a');
+  CHECK_NOTHROW(ch = 'd');
+  CHECK(ch == 'd');
+  CHECK(ct::RangeConstrained<char, 'a', 'z'>::first() == 'a');
+  CHECK(ct::RangeConstrained<char, 'a', 'z'>::last() == 'z');
+}
+
+
+TEST_CASE( "bool" ) {
+
+  SECTION("basic bool range cheking") {
+    ct::RangeConstrained<bool, true, true> bool_only_true = true;
+  
+    CHECK_THROWS(bool_only_true = false);
+    CHECK(bool_only_true == true);
+    CHECK_NOTHROW(bool_only_true = true);
+
+    CHECK(ct::RangeConstrained<bool, true, true>::first() == true);
+    CHECK(ct::RangeConstrained<bool, true, true>::last() == true);
+    CHECK(ct::RangeConstrained<bool, true, true>::range_size() == 1);
+  }
+
+  SECTION("assign with implicit casting to bool") {
+    ct::RangeConstrained<bool, false, true> bool_false_true = true;
+    CHECK_NOTHROW(bool_false_true = 3);
+    CHECK_NOTHROW(bool_false_true = 0);
+  }
+}
+
+
 TEST_CASE( "basic addition" ) {
   ct::RangeConstrained<int, 15, 130> x = 50;
   
@@ -138,8 +186,8 @@ TEST_CASE( "basic addition" ) {
   CHECK( x == 130 );
   
   CHECK_THROWS(x = x + 1);
-  
 }
+
 
 TEST_CASE( "basic substraction" ) {
   ct::RangeConstrained<int, 0, 100> x = 15;
@@ -149,8 +197,8 @@ TEST_CASE( "basic substraction" ) {
   CHECK( x == 0 );
   
   CHECK_THROWS(x = x - 1);
-  
 }
+
 
 TEST_CASE( "unary substraction and addition" ) {
   ct::RangeConstrained<int, 0, 100> x = 99;
@@ -158,24 +206,29 @@ TEST_CASE( "unary substraction and addition" ) {
   
   SECTION( "post" ) {
     CHECK_NOTHROW(x++);
+    CHECK( x == 100 );
     CHECK_THROWS(x++);
     CHECK( x == 100 );
   
     CHECK_NOTHROW(y--);
+    CHECK( y == 0 );
     CHECK_THROWS(y--);
     CHECK( y == 0 );
   }
 
   SECTION( "pre" ) {
     CHECK_NOTHROW(++x);
+    CHECK( x == 100 );
     CHECK_THROWS(++x);
     CHECK( x == 100 );
     
     CHECK_NOTHROW(--y);
+    CHECK( y == 0 );
     CHECK_THROWS(--y);
     CHECK( y == 0 );
   }
 }
+
 
 TEST_CASE( "basic comparison" ) {
   ct::RangeConstrained<int, 0, 100> x = 100;
@@ -194,6 +247,7 @@ TEST_CASE( "basic comparison" ) {
   CHECK( z < x);
   CHECK( z <= x);
 }
+
 
 TEST_CASE( "attributes" ) {
   int x = 4;
@@ -287,13 +341,17 @@ TEST_CASE( "function compatiabillity" ) {
   }
 }
 
+
 TEST_CASE( "array access" ) {
   int  a[5];
   ct::RangeConstrained<int, 0, 4> x = 3;
 
   CHECK_NOTHROW(a[x] = 5);
-  CHECK_NOTHROW(a[5] = x);
-  CHECK_NOTHROW(x = a[5]);
+  CHECK_NOTHROW(a[3] = x);
+  CHECK_NOTHROW(x = a[3]);
+
+  a[3] = 6;
+  CHECK_THROWS(x = a[3]);
 }
 
 TEST_CASE( "intermidiate overflows", "overflows in intermidiate operations are allowed") {
@@ -320,11 +378,11 @@ TEST_CASE( "intermidiate overflows", "overflows in intermidiate operations are a
   CHECK(x == 1);
 }
 
+
 TEST_CASE( "explicit casting") {
   month_t m = 5;
   int k;
   
-
   CHECK_NOTHROW(k = (int)m); // Notice that underlying of month_t is short
   CHECK(k == 5);
 
@@ -332,9 +390,10 @@ TEST_CASE( "explicit casting") {
   CHECK(k == 5);
   
   CHECK_THROWS(m = (month_t)13);
+  CHECK_THROWS(k = (int)(month_t)13);
 }
 
-TEST_CASE( "unary substraction/addiotion advanced test") {
+TEST_CASE( "unary substraction/addition operator order of evaluation") {
   month_t m = 10;
   month_t m2;
 
@@ -346,7 +405,7 @@ TEST_CASE( "unary substraction/addiotion advanced test") {
       CHECK(m2 == 11);
     }
 
-    SECTION("increment") {
+    SECTION("decrement") {
       m2 = --m;
       CHECK(m  == 9);
       CHECK(m2 == 9);
@@ -361,7 +420,7 @@ TEST_CASE( "unary substraction/addiotion advanced test") {
       CHECK(m2 == 10);
     }
 
-    SECTION("increment") {
+    SECTION("decrement") {
       m2 = m--;
       CHECK(m  == 9);
       CHECK(m2 == 10);
@@ -376,7 +435,7 @@ TEST_CASE( "unary substraction/addiotion advanced test") {
       CHECK(m2 == 12);
     }
 
-    SECTION("increment") {
+    SECTION("decrement") {
       m2 = ----m;
       CHECK(m  == 8);
       CHECK(m2 == 8);
@@ -391,7 +450,7 @@ TEST_CASE( "unary substraction/addiotion advanced test") {
       CHECK_FALSE(is_lvalue(m++));  
     }
 
-    SECTION("increment") {
+    SECTION("decrement") {
       CHECK_FALSE(is_lvalue(m--));
     }
   }
@@ -402,15 +461,84 @@ TEST_CASE( "unary substraction/addiotion advanced test") {
       CHECK(is_lvalue(++m));  
     }
 
-    SECTION("increment") {
+    SECTION("decrement") {
       CHECK(is_lvalue(--m));
     }
   }
 }
 
+TEST_CASE( "sizeof operator") {
+
+  SECTION("unsigned integers") {
+    ct::RangeConstrained<uint16_t, 1, 4> u16 = 3;
+    ct::RangeConstrained<uint32_t, 1, 4> u32 = 3;
+    ct::RangeConstrained<uint64_t, 1, 4> u64 = 3; 
+
+    CHECK(sizeof(u16) == sizeof(uint16_t));
+    CHECK(sizeof(u32) == sizeof(uint32_t));
+    CHECK(sizeof(u64) == sizeof(uint64_t));
+  }
+
+  SECTION("signed integers") {
+    ct::RangeConstrained<int16_t, 1, 4> i16 = 3;
+    ct::RangeConstrained<int32_t, 1, 4> i32 = 3;
+    ct::RangeConstrained<int64_t, 1, 4> i64 = 3; 
+
+    CHECK(sizeof(i16) == sizeof(int16_t));
+    CHECK(sizeof(i32) == sizeof(int32_t));
+    CHECK(sizeof(i64) == sizeof(int64_t));
+  }
 
 
+  SECTION("other base types") {
 
+    ct::RangeConstrained<char, 'a', 'z'> ch = 'd';
+    ct::RangeConstrained<bool, false, true> b = false;
 
+    CHECK(sizeof(ch) == sizeof(char));
+    CHECK(sizeof(b) == sizeof(bool));
+  }
+}
 
+TEST_CASE("invalid range", "last is smaller than first, the type does not have a value") {
+
+  ct::RangeConstrained<int, 10, -10> no_value;
+
+  CHECK_THROWS(no_value = 0);
+  CHECK_THROWS(no_value = 10);
+  CHECK_THROWS(no_value = -10);
+
+  CHECK_THROWS(no_value = 11);
+  CHECK_THROWS(no_value = -11);
+
+  CHECK(ct::RangeConstrained<int, 10, -10>::first() == 10);
+  CHECK(ct::RangeConstrained<int, 10, -10>::last() == -10);
+  CHECK(ct::RangeConstrained<int, 10, -10>::range_size() == 0);
+}
+
+TEST_CASE("big range_size") {
+  SECTION("16 bit unsigned") {
+    CHECK(ct::RangeConstrained<uint16_t, numeric_limits<uint16_t>::min(), numeric_limits<uint16_t>::max()>::range_size() == 65536);
+  }
+
+  SECTION("16 bit signed") {
+    CHECK(ct::RangeConstrained<int16_t, numeric_limits<int16_t>::min(), numeric_limits<int16_t>::max()>::range_size() == 65536);
+  }
+
+  SECTION("32 bit unsigned") {
+    CHECK(ct::RangeConstrained<uint32_t, numeric_limits<uint32_t>::min(), numeric_limits<uint32_t>::max()>::range_size() == 0x100000000);
+  }
+
+  SECTION("32 bit signed") {
+    CHECK(ct::RangeConstrained<int32_t, numeric_limits<int32_t>::min(), numeric_limits<int32_t>::max()>::range_size() == 0x100000000);
+  }
+
+  SECTION("64 bit unsigned") {
+    CHECK(ct::RangeConstrained<uint64_t, numeric_limits<uint64_t>::min(), numeric_limits<uint64_t>::max()>::range_size() == 0xffffffffffffffff + 1);
+  }
+
+  SECTION("64 bit signed") {
+    CHECK(ct::RangeConstrained<int64_t, numeric_limits<int64_t>::min(), numeric_limits<int64_t>::max()>::range_size() == 0xffffffffffffffff + 1);
+  }
+}
 
