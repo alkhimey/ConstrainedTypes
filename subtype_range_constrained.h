@@ -157,6 +157,41 @@ public:
     return *this;
   }
 
+  inline RangeConstrained& operator &= (const T& other) {
+    T temp = _val;
+    temp &= other;
+    _val = range_check(temp);
+    return *this;
+  }
+
+  inline RangeConstrained& operator |= (const T& other) {
+    T temp = _val;
+    temp |= other;
+    _val = range_check(temp);
+    return *this;
+  }
+
+  inline RangeConstrained& operator ^= (const T& other) {
+    T temp = _val;
+    temp ^= other;
+    _val = range_check(temp);
+    return *this;
+  }
+
+  inline RangeConstrained& operator <<= (const T& other) {
+    T temp = _val;
+    temp <<= other;
+    _val = range_check(temp);
+    return *this;
+  }
+
+  inline RangeConstrained& operator >>= (const T& other) {
+    T temp = _val;
+    temp >>= other;
+    _val = range_check(temp);
+    return *this;
+  }
+
   /**
    * Prefix, return reference of this
    */
@@ -195,8 +230,6 @@ public:
     _val = range_check(temp);
     return old;
   }
-
-
 };
 
 }

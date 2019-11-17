@@ -284,6 +284,61 @@ TEST_CASE( "modulo assignment" ) {
 }
 
 
+TEST_CASE( "bitwise AND assignment" ) {
+  ct::RangeConstrained<int, 0b01, 0b11> x = 0b01;
+  CHECK_THROWS(x &= 0b10);
+  REQUIRE(x == 0b01);
+  CHECK_NOTHROW(x %= 0b11);
+  REQUIRE(x == 0b01); // TODO: Mutating test required
+}
+
+
+TEST_CASE( "bitwise OR assignment" ) {
+  ct::RangeConstrained<int, 0b000, 0b101> x = 0b010;
+  CHECK_THROWS(x |= 0b101);
+  REQUIRE(x == 0b010);
+  CHECK_NOTHROW(x |= 0b001);
+  REQUIRE(x == 0b011);
+}
+
+TEST_CASE( "bitwise XOR assignment" ) {
+  ct::RangeConstrained<int, 0b00, 0b10> x = 0b10;
+  CHECK_THROWS(x ^= 0b01);
+  REQUIRE(x == 0b10);
+  CHECK_NOTHROW(x ^= 0b11);
+  REQUIRE(x == 0b01);
+}
+
+
+TEST_CASE( "left shift assignment" ) {
+  ct::RangeConstrained<uint16_t, 1, 2> x = 1;
+  CHECK_THROWS(x <<= 2);
+  REQUIRE(x == 1);
+  CHECK_NOTHROW(x <<= 1);
+  REQUIRE(x == 2);  
+}
+
+
+TEST_CASE( "bitwise right shift assignment" ) {
+
+  SECTION( "simple left shit assignemnt" ) {
+    ct::RangeConstrained<uint16_t, 1, 2> x = 2;
+    CHECK_THROWS(x >>= 2);
+    REQUIRE(x == 2);
+    CHECK_NOTHROW(x >>= 1);
+    REQUIRE(x == 1);
+  }
+
+  SECTION( "shifting to zero" ) {
+    ct::RangeConstrained<uint16_t, 0, 1> y = 1;
+    CHECK_NOTHROW(y >>= 1);
+    REQUIRE(y == 0);
+    CHECK_NOTHROW(y >>= 1);
+    REQUIRE(y == 0);
+  }
+}
+
+
 TEST_CASE( "unary substraction and addition" ) {
   ct::RangeConstrained<int, 0, 100> x = 99;
   ct::RangeConstrained<int, 0, 100> y = 1;
@@ -400,7 +455,7 @@ TEST_CASE( "mixed types" ) {
 }
 
 
-TEST_CASE( "function compatiabillity" ) {
+TEST_CASE( "function compatibility" ) {
   month_t a = 6;
   
   SECTION(" parameter is int ") {
@@ -437,6 +492,7 @@ TEST_CASE( "array access" ) {
   a[3] = 6;
   CHECK_THROWS(x = a[3]);
 }
+
 
 TEST_CASE( "intermidiate overflows", "overflows in intermidiate operations are allowed") {
   ct::RangeConstrained<int, 1, 4> x = 3;
@@ -476,6 +532,7 @@ TEST_CASE( "explicit casting") {
   CHECK_THROWS(m = (month_t)13);
   CHECK_THROWS(k = (int)(month_t)13);
 }
+
 
 TEST_CASE( "unary substraction/addition operator order of evaluation") {
   month_t m = 10;
@@ -551,6 +608,7 @@ TEST_CASE( "unary substraction/addition operator order of evaluation") {
   }
 }
 
+
 TEST_CASE( "sizeof operator") {
 
   SECTION("unsigned integers") {
@@ -573,7 +631,6 @@ TEST_CASE( "sizeof operator") {
     CHECK(sizeof(i64) == sizeof(int64_t));
   }
 
-
   SECTION("other base types") {
 
     ct::RangeConstrained<char, 'a', 'z'> ch = 'd';
@@ -583,6 +640,7 @@ TEST_CASE( "sizeof operator") {
     CHECK(sizeof(b) == sizeof(bool));
   }
 }
+
 
 TEST_CASE("invalid range", "last is smaller than first, the type does not have a value") {
 
@@ -625,4 +683,3 @@ TEST_CASE("big range_size") {
     CHECK(ct::RangeConstrained<int64_t, numeric_limits<int64_t>::min(), numeric_limits<int64_t>::max()>::range_size() == 0xffffffffffffffff + 1);
   }
 }
-
