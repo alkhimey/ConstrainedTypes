@@ -200,6 +200,90 @@ TEST_CASE( "basic substraction" ) {
 }
 
 
+TEST_CASE( "basic multiplication" ) {
+  ct::RangeConstrained<int, -1, 9> x = 5;
+  ct::RangeConstrained<int, -1, 9> y = -1;
+  ct::RangeConstrained<int, -1, 9> z = 2;
+
+  CHECK_THROWS(x = y * z);
+  CHECK(x == 5);
+
+  CHECK_THROWS(x = x * z); 
+  CHECK(x == 5);
+
+  CHECK_NOTHROW(x = z * z);
+  CHECK(x == 4);
+
+  int u;
+  CHECK_NOTHROW(u = x * 4);
+  CHECK(u == 16);
+}
+
+
+TEST_CASE( "basic division" ) {
+  
+  ct::RangeConstrained<int, 5, 10> x = 10;
+  CHECK_THROWS(x = x / 5); 
+  CHECK(x == 10);
+
+  CHECK_NOTHROW(x = x / 2);
+  CHECK(x == 5);
+}
+
+
+TEST_CASE( "addition assignment" ) {
+  ct::RangeConstrained<int, -10, 10> x = 5;
+  CHECK_THROWS(x += 6); 
+  CHECK(x == 5);
+
+  x = -5;
+  CHECK_THROWS(x += -6); 
+  CHECK(x == -5);
+
+  x = 0;
+  CHECK_NOTHROW(x += 10); 
+  CHECK(x == 10);
+  CHECK_NOTHROW(x += -20); 
+  CHECK(x == -10);
+}
+
+
+TEST_CASE( "substraction assignment" ) {
+  ct::RangeConstrained<int, 0, 10> x = 5;
+  CHECK_THROWS(x -= 6);
+  REQUIRE(x == 5);
+  CHECK_NOTHROW(x -= 5);
+  REQUIRE(x == 0);
+}
+
+
+TEST_CASE( "multiplication assignment" ) {
+  ct::RangeConstrained<int, -10, 10> x = 5;
+  CHECK_THROWS(x *= 3);
+  REQUIRE(x == 5);
+  CHECK_NOTHROW(x *= 2);
+  REQUIRE(x == 10);
+}
+
+
+TEST_CASE( "division assignment" ) {
+  ct::RangeConstrained<int, 5, 10> x = 10;
+  CHECK_THROWS(x /= 5);
+  REQUIRE(x == 10);
+  CHECK_NOTHROW(x /= 2);
+  REQUIRE(x == 5);
+}
+
+
+TEST_CASE( "modulo assignment" ) {
+  ct::RangeConstrained<int, 4, 10> x = 10;
+  CHECK_THROWS(x %= 2);
+  REQUIRE(x == 10);
+  CHECK_NOTHROW(x %= 6);
+  REQUIRE(x == 4);
+}
+
+
 TEST_CASE( "unary substraction and addition" ) {
   ct::RangeConstrained<int, 0, 100> x = 99;
   ct::RangeConstrained<int, 0, 100> y = 1;
