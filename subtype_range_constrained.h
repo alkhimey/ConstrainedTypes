@@ -105,8 +105,8 @@ public:
     return Last;
   }
 
-  inline static T range_size(void)  {
-    return Last - First + 1;
+  inline static size_t range_size(void)  {
+    return Last < First ? 0 : (size_t)Last - (size_t)First + 1;
   }
 
   inline operator T () const {
@@ -157,6 +157,41 @@ public:
     return *this;
   }
 
+  inline RangeConstrained& operator &= (const T& other) {
+    T temp = _val;
+    temp &= other;
+    _val = range_check(temp);
+    return *this;
+  }
+
+  inline RangeConstrained& operator |= (const T& other) {
+    T temp = _val;
+    temp |= other;
+    _val = range_check(temp);
+    return *this;
+  }
+
+  inline RangeConstrained& operator ^= (const T& other) {
+    T temp = _val;
+    temp ^= other;
+    _val = range_check(temp);
+    return *this;
+  }
+
+  inline RangeConstrained& operator <<= (const T& other) {
+    T temp = _val;
+    temp <<= other;
+    _val = range_check(temp);
+    return *this;
+  }
+
+  inline RangeConstrained& operator >>= (const T& other) {
+    T temp = _val;
+    temp >>= other;
+    _val = range_check(temp);
+    return *this;
+  }
+
   /**
    * Prefix, return reference of this
    */
@@ -195,8 +230,6 @@ public:
     _val = range_check(temp);
     return old;
   }
-
-
 };
 
 }
